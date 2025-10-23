@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VED: The Inner Compass - Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Ancient, Earthy Palette
+                        'primary': '#A0522D',   /* Sienna/Terracotta (Wisdom, Foundation) */
+                        'secondary': '#7C9E83', /* Muted Sage Green (Peace, Growth) */
+                        'background': '#FDF7E3', /* Light Parchment */
+                        'text-dark': '#333333',
+                        'guide-bg': '#E8F5E9', /* Light Green for Guide chat */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Georgia', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* General button styling for interaction - now feels embossed/carved */
+        .btn-carved {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px #8b4513; /* Darker bottom shadow for depth */
+            border-radius: 12px;
+        }
+        .btn-carved:hover {
+            transform: translateY(-2px); 
+            box-shadow: 0 8px #8b4513; /* Increased depth on hover */
+        }
+        .dashboard-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            border-left: 6px solid #A0522D;
+        }
+        #chat-window {
+            height: 400px; /* Fixed height for chat area */
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background-color: #f8f8f8;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e0e0e0;
+        }
+        .guide-bubble {
+            background-color: var(--guide-bg);
+            border-radius: 12px 12px 12px 0;
+            padding: 10px;
+            max-width: 85%;
+        }
+        .user-bubble {
+            background-color: #A0522D;
+            color: white;
+            border-radius: 12px 12px 0 12px;
+            padding: 10px;
+            max-width: 85%;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-text-dark min-h-screen flex flex-col">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/95 shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20">
+            <div class="flex items-center">
+                <a href="#" class="text-4xl font-extrabold text-primary flex items-center tracking-wider">
+                    <!-- UNIQUE VED GLYPH: Ascending Wisdom -->
+                    <svg class="w-10 h-10 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Base (Foundation/Earth) - Primary Color -->
+                        <rect x="5" y="16" width="14" height="3" rx="1.5" fill="currentColor" class="text-primary"/>
+                        <!-- Ascending Path (Growth/Peace) - Secondary Color -->
+                        <rect x="7" y="11" width="10" height="3" rx="1.5" fill="currentColor" class="text-secondary"/>
+                        <!-- Pinnacle (Clarity/Illumination) - Gold/Primary Color -->
+                        <path d="M12 4L14 8H10L12 4Z" fill="currentColor" class="text-primary"/>
+                    </svg>
+                    VED
+                </a>
+                <span class="ml-4 text-sm text-gray-500 hidden sm:inline">Inner Compass</span>
+            </div>
+            <!-- User ID Display - Crucial for Anonymity/Debug -->
+            <div class="flex items-center space-x-4">
+                <span id="user-status" class="text-sm font-semibold text-gray-600">Loading...</span>
+                <span class="hidden md:inline text-xs text-gray-400">ID: <span id="user-id-display" class="font-mono text-text-dark">Connecting...</span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN APPLICATION DASHBOARD -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div id="app-dashboard" class="flex flex-col lg:flex-row gap-10">
+            
+            <!-- Left Column: Inner Guide Console (Advanced AI Chat) -->
+            <div class="lg:w-2/3 space-y-6">
+                <div class="dashboard-card border-l-8 border-secondary">
+                    <h1 class="text-3xl font-serif font-extrabold text-secondary mb-3 flex items-center">
+                        <!-- AI Guide Avatar (Simple SVG Representation) -->
+                        <svg class="w-8 h-8 mr-3 text-secondary" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.43 12.92 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.11-1.14c.36-.36.57-.84.57-1.33 0-.55-.45-1-1-1s-1 .45-1 1H9c0-1.66 1.34-3 3-3s3 1.34 3 3c0 .87-.36 1.67-.93 2.25z"/>
+                        </svg>
+                        Inner Guide Console
+                    </h1>
+                    <p class="text-gray-600 mb-4 text-sm">
+                        Speak your truth to the Guide. It will analyze your state and prepare you for your Keeper.
+                    </p>
+                    
+                    <!-- Chat Window -->
+                    <div id="chat-window">
+                        <!-- Initial Message -->
+                        <div class="flex items-start mb-4">
+                            <span class="text-3xl mr-2">🤖</span>
+                            <div class="guide-bubble text-text-dark">
+                                <p class="text-sm">Namaste. I am the Inner Guide. Tell me, **in a few sentences**, what is weighing on your mind today? This will help determine your state.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="mt-4 flex space-x-2">
+                        <input type="text" id="chat-input" placeholder="Type your honest feeling here..." 
+                               class="flex-grow p-3 border border-gray-300 rounded-xl focus:ring-primary focus:border-primary transition" disabled>
+                        <button id="send-chat-button" class="btn-carved bg-primary text-white font-bold py-3 px-6 rounded-xl hover:bg-[#8b4513]" disabled>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        </button>
+                    </div>
+
+                    <p id="chat-status" class="mt-2 text-center text-xs text-secondary font-semibold hidden">AI is typing and speaking...</p>
+                    <p id="tts-status" class="mt-2 text-center text-xs text-red-500 font-semibold hidden">
+                        <svg class="animate-spin inline mr-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>
+                        Generating Voice...
+                    </p>
+                </div>
+                
+                <!-- TALAASH Button moved down for better flow -->
+                <button id="seek-keeper-button" class="btn-carved bg-primary text-white font-extrabold py-5 px-10 rounded-2xl shadow-xl transition duration-300 ease-in-out text-xl hover:bg-[#8b4513] w-full" disabled>
+                    TALAASH (Search for a Keeper)
+                </button>
+                <p id="match-status" class="mt-4 text-center text-secondary font-semibold hidden">Matching in progress...</p>
+            </div>
+
+            <!-- Right Column: Inner Oracle Glimpse -->
+            <div class="lg:w-1/3 space-y-10">
+                <div class="dashboard-card bg-secondary/10 border-l-8 border-secondary">
+                    <h2 class="text-2xl font-serif font-bold text-secondary mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Inner Oracle Glimpse (AI Report)
+                    </h2>
+                    <p class="text-gray-600 mb-6 text-sm">
+                        This summary is based on your chat with the Inner Guide and directs the Keeper matching process.
+                    </p>
+
+                    <!-- Oracle Output -->
+                    <div id="oracle-data" class="space-y-4">
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+                            <span class="font-semibold text-text-dark">Current State:</span>
+                            <span id="oracle-state" class="font-extrabold text-xl text-primary">-- Unanalysed --</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-text-dark">Energy Level:</span>
+                            <span id="oracle-energy" class="font-mono text-lg text-secondary">-- / 10</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-text-dark">Primary Need:</span>
+                            <span id="oracle-need" class="font-mono text-lg text-primary">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Session History (Placeholder for future development) -->
+                <div class="dashboard-card">
+                    <h2 class="text-3xl font-serif font-bold text-text-dark mb-4">Past Wisdom Scrolls</h2>
+                    <p class="text-gray-500 italic">
+                        Once you complete a session, the guidance will be stored here for your reference.
+                    </p>
+                    <ul id="session-history" class="mt-4 space-y-3">
+                        <!-- History items will be inserted here by JavaScript -->
+                        <li class="p-3 bg-gray-50 rounded-lg text-gray-500">No past sessions found.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-text-dark text-white py-6 mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-500 text-xs">&copy; 2024 VED. Peer Support, Not Clinical Therapy.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK Imports and Core Logic -->
+    <script type="module">
+        // Import necessary Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- GLOBAL VARIABLES (Provided by Canvas Environment) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-ved-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const API_KEY = ""; // API Key for LLM Calls
+
+        // --- FIREBASE INITIALIZATION STATE ---
+        let db, auth;
+        let userId = null;
+        let isAuthReady = false;
+        let currentOracleData = { state: "Not Analyzed", energy: 5, need: "Speak to Guide first", color: "text-gray-500" };
+        let chatHistory = [{ role: "assistant", parts: [{ text: "Namaste. I am the Inner Guide. Tell me, **in a few sentences**, what is weighing on your mind today? This will help determine your state." }] }];
+
+        // Mock data mapping emotional states to Tailwind colors for display
+        const STATE_COLOR_MAP = {
+            "High Stress": "text-red-600",
+            "Balanced Calm": "text-green-600",
+            "Mental Fatigue": "text-yellow-600",
+            "Anxiety Spike": "text-orange-600",
+            "Content Focus": "text-secondary",
+            "Not Analyzed": "text-gray-500",
+            "Analysis Failed": "text-red-900"
+        };
+        
+        // --- UTILITY: EXPONENTIAL BACKOFF FOR API CALLS ---
+        async function fetchWithBackoff(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`HTTP error! status: ${response.status}. Body: ${errorBody}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    // Otherwise, the loop continues for retry
+                }
+            }
+        }
+        
+        // --- TTS UTILITIES ---
+        // Function to convert base64 to ArrayBuffer
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Function to convert PCM data to WAV Blob
+        function pcmToWav(pcm16, sampleRate) {
+            const numChannels = 1;
+            const numSamples = pcm16.length;
+            const bitsPerSample = 16;
+            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const dataSize = numSamples * numChannels * (bitsPerSample / 8);
+            
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+            
+            let offset = 0;
+            
+            // RIFF chunk
+            view.setUint32(offset, 0x46464952, false); // "RIFF"
+            offset += 4;
+            view.setUint32(offset, 36 + dataSize, true); // Chunk size
+            offset += 4;
+            view.setUint32(offset, 0x45564157, false); // "WAVE"
+            offset += 4;
+            
+            // FMT chunk
+            view.setUint32(offset, 0x20746d66, false); // "fmt "
+            offset += 4;
+            view.setUint32(offset, 16, true); // Sub-chunk 1 size (16 for PCM)
+            offset += 4;
+            view.setUint16(offset, 1, true); // Audio format (1 for PCM)
+            offset += 2;
+            view.setUint16(offset, numChannels, true); // Number of channels
+            offset += 2;
+            view.setUint32(offset, sampleRate, true); // Sample rate
+            offset += 4;
+            view.setUint32(offset, byteRate, true); // Byte rate
+            offset += 4;
+            view.setUint16(offset, blockAlign, true); // Block align
+            offset += 2;
+            view.setUint16(offset, bitsPerSample, true); // Bits per sample
+            offset += 2;
+            
+            // DATA chunk
+            view.setUint32(offset
